@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 ################################################################################
 # Dynamic inventory generation for Ansible
-# In orignal version found here: https://github.com/lukaspustina/dynamic-inventory-for-ansible-with-openstack
+# In original version found here: https://github.com/lukaspustina/dynamic-inventory-for-ansible-with-openstack
 # Author lukas.pustina@codecentric.de
 # With additions from Johan Dahlberg - johan.dahlberg@medsci.uu.se
 #
@@ -38,91 +38,106 @@ from novaclient.v2 import client
 import os, sys, json
 
 OS_METADATA_KEY = {
-	'host_groups': 'ansible_host_groups',
-	'host_vars': 'ansible_host_vars'
+    'host_groups': 'ansible_host_groups',
+    'host_vars': 'ansible_host_vars'
 }
 
 try:
-	OS_NETWORK_NAME = os.environ['OS_NETWORK_NAME']
+    OS_NETWORK_NAME = os.environ['OS_NETWORK_NAME']
 except KeyError as e:
-	print("ERROR: environment variable %s is not defined" % e, file=sys.stderr)
-	sys.exit(-1)
+    print("ERROR: environment variable %s is not defined" % e, file=sys.stderr)
+    sys.exit(-1)
+
 
 def main(args):
-	credentials = getOsCredentialsFromEnvironment()
-	nt = client.Client(credentials['USERNAME'], credentials['PASSWORD'], credentials['TENANT_NAME'], credentials['AUTH_URL'], service_type="compute")
+    credentials = getOsCredentialsFromEnvironment()
+    nt = client.Client(credentials['USERNAME'], credentials['PASSWORD'], credentials['TENANT_NAME'], credentials['AUTH_URL'], service_type="compute")
 
-	inventory = {}
-	inventory['_meta'] = { 'hostvars': {} }
+    inventory = {}
+    inventory['_meta'] = { 'hostvars': {} }
 
-	for server in nt.servers.list():
-		floatingIp = getFloatingIpFromServerForNetwork(server, OS_NETWORK_NAME)
-		if floatingIp:
-			for group in getAnsibleHostGroupsFromServer(nt, server.id):
-				addServerToHostGroup(group, floatingIp, inventory)
-			host_vars = getAnsibleHostVarsFromServer(nt, server.id)
-			if host_vars:
-				addServerHostVarsToHostVars(host_vars, floatingIp, inventory)
+    for server in nt.servers.list():
+        floatingIp = getFloatingIpFromServerForNetwork(server, OS_NETWORK_NAME)
+        if floatingIp:
+            for group in getAnsibleHostGroupsFromServer(nt, server.id):
+                addServerToHostGroup(group, floatingIp, inventory)
 
-	dumpInventoryAsJson(inventory)
+            host_vars = getAnsibleHostVarsFromServer(nt, server.id)
+            if host_vars:
+                addServerHostVarsToHostVars(host_vars, floatingIp, inventory)
+
+    dumpInventoryAsJson(inventory)
+
 
 def getOsCredentialsFromEnvironment():
-	credentials = {}
-	try:
-		credentials['USERNAME'] = os.environ['OS_USERNAME']
-		credentials['PASSWORD'] = os.environ['OS_PASSWORD']
-		credentials['TENANT_NAME'] = os.environ['OS_TENANT_NAME']
-		credentials['AUTH_URL'] = os.environ['OS_AUTH_URL']
-	except KeyError as e:
-		print("ERROR: environment variable %s is not defined" % e, file=sys.stderr)
-		sys.exit(-1)
+    credentials = {}
+    try:
+        credentials['USERNAME'] = os.environ['OS_USERNAME']
+        credentials['PASSWORD'] = os.environ['OS_PASSWORD']
+        credentials['TENANT_NAME'] = os.environ['OS_TENANT_NAME']
+        credentials['AUTH_URL'] = os.environ['OS_AUTH_URL']
+    except KeyError as e:
+        print("ERROR: environment variable %s is not defined" % e, file=sys.stderr)
+        sys.exit(-1)
 
-	return credentials
+    return credentials
+
 
 def getAnsibleHostGroupsFromServer(novaClient, serverId):
-	metadata = getMetaDataFromServer(novaClient, serverId, OS_METADATA_KEY['host_groups'])
-	if metadata:
-		return metadata.split(',')
-	else:
-		return []
+    metadata = getMetaDataFromServer(novaClient, serverId, OS_METADATA_KEY['host_groups'])
+    if metadata:
+        return metadata.split(',')
+    else:
+        return []
+
 
 def getMetaDataFromServer(novaClient, serverId, key):
-	return novaClient.servers.get(serverId).metadata.get(key, None)
+    return novaClient.servers.get(serverId).metadata.get(key, None)
+
 
 def getAnsibleHostVarsFromServer(novaClient, serverId):
-	metadata = getMetaDataFromServer(novaClient, serverId, OS_METADATA_KEY['host_vars'])
-	if metadata:
-		host_vars = {}
-		for kv in metadata.split(';'):
-			key, values = kv.split('->')
-			values = values.split(',')
-			host_vars[key] = values
-		return host_vars
-	else:
-		return None
+    metadata = getMetaDataFromServer(novaClient, serverId, OS_METADATA_KEY['host_vars'])
+    if metadata:
+        host_vars = {}
+
+        for kv in metadata.split(';'):
+            key, values = kv.split('->')
+            values = values.split(',')
+            host_vars[key] = values
+
+        return host_vars
+    else:
+        return None
+
 
 def getFloatingIpFromServerForNetwork(server, network):
-	for addr in server.addresses.get(network):
-		if addr.get('OS-EXT-IPS:type') == 'floating':
-			return addr['addr']
-                if addr.get('OS-EXT-IPS:type') == 'fixed':
-                        return addr['addr']
-	return None
+    for addr in server.addresses.get(network):
+        if addr.get('OS-EXT-IPS:type') == 'floating':
+            return addr['addr']
+
+        if addr.get('OS-EXT-IPS:type') == 'fixed':
+            return addr['addr']
+
+    return None
+
+
 
 def addServerToHostGroup(group, floatingIp, inventory):
-	host_group = inventory.get(group, {})
-	hosts = host_group.get('hosts', [])
-	hosts.append(floatingIp)
-	host_group['hosts'] = hosts
-	inventory[group] = host_group
+    host_group = inventory.get(group, {})
+    hosts = host_group.get('hosts', [])
+    hosts.append(floatingIp)
+    host_group['hosts'] = hosts
+    inventory[group] = host_group
+
 
 def addServerHostVarsToHostVars(host_vars, floatingIp, inventory):
-	inventory_host_vars = inventory['_meta']['hostvars'].get(floatingIp, {})
-	inventory_host_vars.update(host_vars)
-	inventory['_meta']['hostvars'][floatingIp] = inventory_host_vars
+    inventory_host_vars = inventory['_meta']['hostvars'].get(floatingIp, {})
+    inventory_host_vars.update(host_vars)
+    inventory['_meta']['hostvars'][floatingIp] = inventory_host_vars
+
 
 def dumpInventoryAsJson(inventory):
-	print(json.dumps(inventory, indent=4))
+    print(json.dumps(inventory, indent=4))
 
 
 if __name__ == "__main__":

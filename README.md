@@ -11,26 +11,49 @@ How to start it?
 -----------------
 - Create a host from which to run ansible in your OpenStack dashboard and associate a floating IP to is so that you can `ssh` in to it.
 - `ssh` to the machine you just created.
-- Install the pre-requisites:
-```
-sudo apt-get install python-pip python-dev git
-sudo pip install ansible
-sudo pip install python-novaclient
-```
 - Clone this repository:
 ```
-git clone https://github.com/johandahlberg/ansible_spark_openstack.git
+git clone git@github.com:flopezag/ansible_spark_openstack.git
 ```
-- Create a dir called `files` in the repo root dir and copy you ssh-keys (these cannot have a password) there. This is used to enable password-less ssh access between the nodes:
-- Download you OpenStack RC file from the OpenStack dashboard (it's available under "Access & Security -> API Access") 
+- Create virtualenv and activate it:
+```
+virtualenv $NAME_VIRTUAL_ENV
+source $NAME_VIRTUAL_ENV/bin/activate
+```
+- Install the pre-requisites:
+```
+pip install -r requirements.txt
+```
+- Download you OpenStack RC file from the OpenStack dashboard (it's available under "info" option on the top left of the FIWARE Lab Cloud Portal). 
+```
+export OS_REGION_NAME=xxxxxx
+export OS_USERNAME=xxxxx
+export OS_PASSWORD=xxxxxx
+export OS_AUTH_URL=http://130.206.84.8:4730/v3/
+export OS_TENANT_NAME=xxxxxxx
+export OS_PROJECT_DOMAIN_NAME=default
+export OS_USER_DOMAIN_NAME=default
+export OS_IDENTITY_API_VERSION=3
+```
+- You can add the following to your .openrc file
+```
+export PS1='(`basename \"$VIRTUAL_ENV`)[\u@controller \W(keystone_admin)]\$ '
+```
 - Source your OpenStack RC file: `source <path to rc file>`, and fill in your OpenStack password. This will load information about you OpenStack Setup into your environment.
+- Create a dir called `files` in the repo root dir and copy you ssh-keys (these cannot have a password) there. This is used to enable password-less ssh access between the nodes:
+```
+ssh-keygen -N '' -f id_rsa -q
+```
 - Create the security group for spark. Since spark will start some services on random ports this will allow all tcp traffic within the security group:
 ```
-nova secgroup-create spark "internal security group for spark"
-nova secgroup-add-group-rule spark spark tcp 1 65535
+openstack security group create spark --description "internal security group for spark"
+openstack security group rule create spark --protocol tcp --dst-port 1:65535
 ```
-- Setup the name of your network. `export OS_NETWORK_NAME="<name of your network>"` If you like you can add this to your OpenStack RC file, or set it in your `bash_rc`. (You can find the name of your network in your OpenStack dashboard)
-
+- Setup the name of your network. `export OS_NETWORK_NAME="node-int-net-01"` If you like you can add this to your OpenStack RC file, or set it in your `bash_rc`. (You can find the name of your network in your OpenStack dashboard)
+- [Optional] Create a keypair to be used in your instances:
+```
+openstack keypair create spark 
+```
 - Edit the setup variables to fit your setup. Open `vars/main.yml` and setup the variables as explained there.
 - One all the variables are in place you should now be able to create your instances:
 ```

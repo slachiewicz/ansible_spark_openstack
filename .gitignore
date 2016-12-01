@@ -1,0 +1,6 @@
+.openrc
+*.retry
+
+.idea/*
+env/*
+files/*
