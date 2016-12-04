@@ -3,7 +3,7 @@
 instance_state: present
 
 # Number of workers to spawn in the cluster
-nbr_of_slaves: 3
+nbr_of_slaves: 2
 
 # The name of the key pair you will use to log in
 # as set in OpenStack (see the OpenStack security dashboard)
@@ -12,13 +12,13 @@ key_name: spark
 # Id of the networks to run in (can be found in the OpenStack
 # dashboard)
 network_internal_name: node-int-net-01
-network_external_name: public-ext-int-01
+network_external_name: public-ext-net-01
 
 # This is the ssh-key which will be distritbuted 
 # across the cluster. It' important that this key
 # does NOT use password protection
-ssh_keys_to_use: files/cloud.key
-ssh_public_key: files/cloud.key.pub
+ssh_keys_to_use: files/cloud
+ssh_public_key: files/cloud.pub
 
 # This is a ugly hack - but you have to give the
 # file name of the ssh-key your referencing above

@@ -12,12 +12,10 @@
       image: 2a9630d7-2328-4bbd-bbe7-e125c7008558
       key_name: "{{ key_name }}"
       timeout: 200
-      flavor: 4
+      flavor: 3
       network: "{{ network_internal_name }}"
       security_groups: spark,default
-      floating_ip_pools: public-ext-net-01
-      floating_ips:
-        - 130.206.126.162
+      floating_ip_pools: "{{ network_external_name }}"
       meta:
         hostname: spark-master
         ansible_host_groups: spark_masters,default
@@ -30,9 +28,9 @@
       image: 2a9630d7-2328-4bbd-bbe7-e125c7008558
       key_name: "{{ key_name }}"
       timeout: 200
-      flavor: 4
+      flavor: 3
       security_groups: spark,default
-      floating_ip_pools: public-ext-net-01
+      floating_ip_pools: "{{ network_external_name }}"
       nics:
         - net-name: "{{ network_internal_name }}"
       meta:
@@ -40,6 +38,6 @@
         ansible_host_groups: spark_slaves,default
     register: spark_slaves
     with_sequence: 
-      start=0
+      start=1
       end="{{ nbr_of_slaves }}"
       format=spark-slave%02x

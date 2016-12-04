@@ -61,7 +61,7 @@ ansible-playbook -i localhost_inventory --private-key=<your_ssh_key> create_spar
 ```
 - Then install spark on the nodes (I've noticed that sometimes it takes a while for the ssh-server on the nodes to start, so if you get an initial ssh-error, wait a few minutes and try again).
 ```
-ansible-playbook -i openstack_inventory.py --private-key=<your_ssh_key> deploy_spark_playbook.yml
+ ansible-playbook -i openstack_inventory.py --user=ubuntu --private-key=<your_ssh_key>  deploy_spark_playbook.yml
 ```
 - Once this has finished successfully your spark cluster should be up and running! `ssh` into the spark-master node and try your new Spark cluster it by kicking of a shell. Now you're ready to enter into the Spark world. Have fun!
 ```

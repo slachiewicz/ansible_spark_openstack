@@ -3,7 +3,7 @@
 # Deploy the general stuff
 # ------------------------
 - hosts: all
-  sudo: yes
+  become: yes
 
   vars:
     ssh_public_key_content: "{{ lookup('file', ssh_public_key ) }}"
@@ -41,24 +41,24 @@
 
     - name: Get hadoop 
       get_url:
-        url=http://apache.mirrors.spacedump.net/hadoop/common/stable/hadoop-2.6.0.tar.gz 
+        url=http://apache.rediris.es/hadoop/common/hadoop-2.7.3/hadoop-2.7.3.tar.gz
         dest=/usr/local/ 
-        sha256sum=7a2ef6e7f468afcae95d0f7214816033c7e5c7982454061ccb117896d58d279f
+        sha256sum=D489DF3808244B906EB38F4D081BA49E50C4603DB03EFD5E594A1E98B09259C2
 
     - name: unzip hadoop
-      unarchive: copy=no src=/usr/local/hadoop-2.6.0.tar.gz dest=/usr/local/ owner={{ hadoop_user }} group=hadoop
+      unarchive: copy=no src=/usr/local/hadoop-2.7.3.tar.gz dest=/usr/local/ owner={{ hadoop_user }} group=hadoop
 
     - name: set user and priviliges on hadoop
-      file: path=/usr/local/hadoop-2.6.0 owner={{ hadoop_user }} group=hadoop recurse=yes
+      file: path=/usr/local/hadoop-2.7.3 owner={{ hadoop_user }} group=hadoop recurse=yes
 
     - name: distribute hadoop conf
-      template: src=templates/hadoop-env.sh.j2 dest=/usr/local/hadoop-2.6.0/etc/hadoop/hadoop-env.sh
+      template: src=templates/hadoop-env.sh.j2 dest=/usr/local/hadoop-2.7.3/etc/hadoop/hadoop-env.sh
 
     - name: distribute hadoop core-site.xml
-      template: src=templates/core-site.xml.j2 dest=/usr/local/hadoop-2.6.0/etc/hadoop/core-site.xml
+      template: src=templates/core-site.xml.j2 dest=/usr/local/hadoop-2.7.3/etc/hadoop/core-site.xml
 
     - name: distribute hadoop hdfs-site.xml
-      template: src=templates/hdfs-site.xml.j2 dest=/usr/local/hadoop-2.6.0/etc/hadoop/hdfs-site.xml
+      template: src=templates/hdfs-site.xml.j2 dest=/usr/local/hadoop-2.7.3/etc/hadoop/hdfs-site.xml
 
     # Setup ssh-setup for normal user and hadoop user    
     - name: deploy authorized keys
@@ -105,31 +105,31 @@
 
   tasks:
     - name: distribute hadoop slaves file
-      template: src=templates/masters.j2 dest=/usr/local/hadoop-2.6.0/etc/hadoop/masters
+      template: src=templates/masters.j2 dest=/usr/local/hadoop-2.7.3/etc/hadoop/masters
 
     - name: distribute hadoop slaves file
-      template: src=templates/slaves.j2 dest=/usr/local/hadoop-2.6.0/etc/hadoop/slaves
+      template: src=templates/slaves.j2 dest=/usr/local/hadoop-2.7.3/etc/hadoop/slaves
 
     - name: format hdfs (unless it's already been done)
-      command: /usr/local/hadoop-2.6.0/bin/hadoop namenode -format creates=/usr/local/hadoop-2.6.0/ansible-format-hdfs
+      command: /usr/local/hadoop-2.7.3/bin/hadoop namenode -format creates=/usr/local/hadoop-2.7.3/ansible-format-hdfs
    
     - name: touch hfds formatted file (indicates if hdfs has been formatted)
-      file: state=touch path=/usr/local/hadoop-2.6.0/ansible-format-hdfs
+      file: state=touch path=/usr/local/hadoop-2.7.3/ansible-format-hdfs
 
     - name: add hadoop and spark binaries to path for hadoop user
       lineinfile:
         dest=/home/{{ hadoop_user }}/.bashrc 
         state=present insertafter=EOF 
-        line="export PATH=$PATH:/usr/local/hadoop-2.6.0/bin/:/opt/spark-1.2.1-bin-hadoop2.4/bin/"
+        line="export PATH=$PATH:/usr/local/hadoop-2.7.3/bin/:/opt/spark-1.2.1-bin-hadoop2.4/bin/"
         create=true
       tags:
         - current
 
     - name: stop hadoop (if running)
-      command: /usr/local/hadoop-2.6.0/sbin/stop-dfs.sh
+      command: /usr/local/hadoop-2.7.3/sbin/stop-dfs.sh
 
     - name: start hadoop
-      command: /usr/local/hadoop-2.6.0/sbin/start-dfs.sh
+      command: /usr/local/hadoop-2.7.3/sbin/start-dfs.sh
 
 # --------------------------------------------------
 # Kick of spark (making the master start the slaves)
