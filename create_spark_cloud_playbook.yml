@@ -18,7 +18,7 @@
       floating_ip_pools: "{{ network_external_name }}"
       meta:
         hostname: spark-master
-        ansible_host_groups: spark_masters,default
+        ansible_host_groups: spark_master
     register: spark_master
 
   - name: Create a new spark slaves
@@ -35,7 +35,7 @@
         - net-name: "{{ network_internal_name }}"
       meta:
         hostname: "{{ item }}"
-        ansible_host_groups: spark_slaves,default
+        ansible_host_groups: spark_slaves
     register: spark_slaves
     with_sequence: 
       start=1

@@ -22,7 +22,7 @@ ssh_public_key: files/cloud.pub
 
 # This is a ugly hack - but you have to give the
 # file name of the ssh-key your referencing above
-name_of_ssh_key: cloud.key
+name_of_ssh_key: cloud
 
 # Name of the user used to install everything
 # on the remote systems

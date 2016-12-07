@@ -98,16 +98,16 @@
 # --------------------------------------------------
 # Start the hadoop master
 # --------------------------------------------------
-- hosts: spark_masters
+- hosts: spark-master
   vars_files:
     - vars/main.yml
 
 
   tasks:
-    - name: distribute hadoop slaves file
+    - name: distribute hadoop master configuration file
       template: src=templates/masters.j2 dest=/usr/local/hadoop-2.7.3/etc/hadoop/masters
 
-    - name: distribute hadoop slaves file
+    - name: distribute hadoop slaves configuration file
       template: src=templates/slaves.j2 dest=/usr/local/hadoop-2.7.3/etc/hadoop/slaves
 
     - name: format hdfs (unless it's already been done)
@@ -118,7 +118,7 @@
 
     - name: add hadoop and spark binaries to path for hadoop user
       lineinfile:
-        dest=/home/{{ hadoop_user }}/.bashrc 
+        dest=/home/{{ hadoop_user }}/.bashrc
         state=present insertafter=EOF 
         line="export PATH=$PATH:/usr/local/hadoop-2.7.3/bin/:/opt/spark-1.2.1-bin-hadoop2.4/bin/"
         create=true
@@ -135,7 +135,7 @@
 # Kick of spark (making the master start the slaves)
 # and configure spark-master as hadoop master
 # --------------------------------------------------
-- hosts: spark_masters
+- hosts: spark-master
 
   tasks:
 

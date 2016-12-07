@@ -52,7 +52,7 @@ openstack security group rule create spark --protocol tcp --dst-port 1:65535
 - Setup the name of your network. `export OS_NETWORK_NAME="node-int-net-01"` If you like you can add this to your OpenStack RC file, or set it in your `bash_rc`. (You can find the name of your network in your OpenStack dashboard)
 - [Optional] Create a keypair to be used in your instances:
 ```
-openstack keypair create spark 
+openstack keypair create spark > <your_ssh_key>
 ```
 - Edit the setup variables to fit your setup. Open `vars/main.yml` and setup the variables as explained there.
 - One all the variables are in place you should now be able to create your instances:
@@ -61,11 +61,11 @@ ansible-playbook -i localhost_inventory --private-key=<your_ssh_key> create_spar
 ```
 - Then install spark on the nodes (I've noticed that sometimes it takes a while for the ssh-server on the nodes to start, so if you get an initial ssh-error, wait a few minutes and try again).
 ```
- ansible-playbook -i openstack_inventory.py --user=ubuntu --private-key=<your_ssh_key>  deploy_spark_playbook.yml
+ansible-playbook -i openstack_inventory.py --user=ubuntu --private-key=<your_ssh_key>  deploy_spark_playbook.yml
 ```
 - Once this has finished successfully your spark cluster should be up and running! `ssh` into the spark-master node and try your new Spark cluster it by kicking of a shell. Now you're ready to enter into the Spark world. Have fun!
 ```
-spark-shell --master spark://spark-master:7077 --executor-memory 6G
+spark-shell --master spark://spark-master:7077 --executor-memory 2G
 ```
 
 Tips
@@ -80,8 +80,8 @@ Licence
 -------
 MIT
 
-Acknowledements
----------------
-- Mikael Huss (@hussius) for sharing his insights on Spark and collaborating with me on this
-- Zeeshan Ali Shah (@zeeshanali) for helping me get going with OpenStack
-
+Acknowledgements
+----------------
+- Mikael Huss (@hussius) for sharing his insights on Spark and collaborating with me on this.
+- Zeeshan Ali Shah (@zeeshanali) for helping me get going with OpenStack.
+- Johan Dahlberg starting point of this job.
