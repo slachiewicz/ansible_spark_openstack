@@ -10,7 +10,7 @@
 
 {% for host in groups['all'] %}
   Host {{ hostvars[host].ansible_hostname }}
-  #User ubuntu
+  # User ubuntu
   IdentityFile ~/.ssh/{{ name_of_ssh_key }}
   StrictHostKeyChecking no
 
