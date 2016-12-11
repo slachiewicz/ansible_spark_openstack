@@ -1,0 +1,15 @@
+.openrc
+
+# Discard ansible retry files
+*.retry
+
+# Discard IDE files
+.idea/*
+
+# Discard virtualenv
+env/*
+
+files/*
+
+# Discard keypair files
+*.pem
