@@ -44,7 +44,7 @@ export OS_IDENTITY_API_VERSION=3
 ```
 - [OPTIONAL] I suggest to add the following line to it.
 ```
-export PS1='(`basename \"$VIRTUAL_ENV`)[\u@controller \W(keystone_admin)]\$ '
+export PS1='(`basename \"$VIRTUAL_ENV`)[\u@FIWARE Lab \W(keystone_user)]\$ '
 ```
 - Source your OpenStack RC file: `source <path to rc file>`. This will load information about you OpenStack Setup 
 into your environment.
@@ -78,6 +78,10 @@ ansible-playbook -i openstack_inventory.py --user=ubuntu --private-key=<YOUR SSH
 and try your new Spark cluster it by kicking of a shell. Now you're ready to enter into the Spark world. Have fun!
 ```
 spark-shell --master spark://spark-master:7077 --executor-memory 2G
+```
+or you cah see the web interface in the following IP
+```
+http://<master IP>:8080/
 ```
 
 Tips
